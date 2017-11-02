@@ -11,14 +11,14 @@
 
 # IPMI DEFAULT R710 SETTINGS
 # Modify to suit your needs.
-IPMIHOST=192.168.0.120
+IPMIHOST=192.168.1.70
 IPMIUSER=root
 IPMIPW=calvin
 
 # TEMPERATURE
 # Change this to the temperature in celcius you are comfortable with. 
 # If it goes above it will send raw IPMI command to enable dynamic fan control
-MAXTEMP=27
+MAXTEMP=30
 
 # This variable sends a IPMI command to get the temperature, and outputs it as two digits.
 # Do not edit unless you know what you do.
@@ -31,6 +31,8 @@ if [[ $TEMP > $MAXTEMP ]];
     echo "Temperature is too high! ($TEMP C) Activating dynamic fan control!"
     ipmitool -I lanplus -H $IPMIHOST -U $IPMIUSER -P $IPMIPW raw 0x30 0x30 0x01 0x01
   else
+    ipmitool -I lanplus -H $IPMIHOST -U $IPMIUSER -P $IPMIPW raw 0x30 0x30 0x01 0x00
+    ipmitool -I lanplus -H $IPMIHOST -U $IPMIUSER -P $IPMIPW raw 0x30 0x30 0x02 0xff 0x09
     printf "Temperature is OK ($TEMP C)" | systemd-cat -t R710-IPMI-TEMP
     echo "Temperature is OK ($TEMP C)"
 fi
